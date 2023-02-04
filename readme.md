@@ -9,7 +9,7 @@ Rate The KnockOut Actors With  <b>Warp</b><sup><em>(crud)</em></sup><br>
 
 ## 介绍
 
-不要紧张，这只是一个简单的CRUD，但是它可以帮助你理解如何使用Warp构建后端restful_API。
+不要紧张，这只是一个简单的CRUD，但是它可以帮助你理解如何使用Warp构建后端restful风格的API。
 
 ## Feature
 
