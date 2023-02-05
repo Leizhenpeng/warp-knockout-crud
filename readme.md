@@ -34,6 +34,7 @@ Rate The KnockOut Actors With  <b>Warp</b><sup><em>(crud)</em></sup><br>
 - [x] 基于Tokio的异步
 - [x] 日志记录
 - [x] 优雅的路由封装
+- [x] 路由自测
 
 ## develop
 
