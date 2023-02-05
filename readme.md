@@ -14,11 +14,17 @@ Rate The KnockOut Actors With  <b>Warp</b><sup><em>(crud)</em></sup><br>
 ## 关于rust写后端
 
 
-凌晨，某集团军钢刀连三排五班接到了一项紧急任务：把一份神秘的物资送往10公里外的前线哨所。时间紧迫，任务重要，整装待发的五人骑上装甲车，护送物资出发。
+打个比方： 
+
+凌晨，某集团军钢刀连三排五班接到了一项紧急任务：把一份神秘的物资送往10公里外的前线哨所。
+
+时间紧迫，任务重要，整装待发的五人开上装甲车，立刻出发护送物资。
 
 然而，敌人早已经知道了他们的计划，在路上埋伏了大批武装力量。钢刀连面临着极大的威胁，但他们并未退缩。在一番激烈的战斗中，他们成功护送了物资到达哨所。
 
-暮色将至，哨所长官打开了包裹，却发现里面竟然是一份早餐！看着这份绝密“物资”，班长的两眼发红了。
+暮色将至，哨所长官打开了包裹，却发现里面竟然是一份后勤特供早餐！
+
+看着这份绝密“物资”，班长的两眼发红了。
 
 
 ## Feature
@@ -27,6 +33,7 @@ Rate The KnockOut Actors With  <b>Warp</b><sup><em>(crud)</em></sup><br>
 - [x] 使用Warp构建
 - [x] 基于Tokio的异步
 - [x] 日志记录
+- [x] 优雅的路由封装
 
 ## develop
 
@@ -74,6 +81,24 @@ pub struct ActorListResponse {
 ```
 
 
+```json
+{
+    "status": "success",
+    "results": 1,
+    "actors": [
+        {
+            "id": "CFZr",
+            "name": "徐江",
+            "description": "财大气粗，嚣张跋扈的著名黑社会企业家",
+            "score": 7,
+            "created_at": "2023-02-05T05:14:44.478703Z",
+            "updated_at": "2023-02-05T05:14:44.478703Z"
+        }
+    ]
+}
+```
+
+
 ### 日志管理
 
 - 日志美化
@@ -111,7 +136,84 @@ deploy:
  DEBUG hyper::proto::h1::io   > flushed 141 bytes
  ```
 
+### cors support
+
+``` rust
+fn add_cors() -> Builder {
+    let cors = warp::cors()
+        .allow_methods(&[Method::GET, Method::POST, Method::PATCH, Method::DELETE])
+        .allow_origins(vec!["http://localhost:3000/", "http://localhost:8000/"])
+        .allow_headers(vec!["content-type"])
+        .allow_credentials(true);
+    cors
+}
+```
+
+### 规范项目结构,优雅封装路由
+
+    
+```angular2html
+.
+├── Cargo.lock
+├── Cargo.toml
+├── Makefile
+├── readme.md
+├── src
+│   ├── db.rs
+│   ├── handler.rs
+│   ├── main.rs
+│   ├── model.rs
+│   └── router.rs
+└── test.log
+```
+
+``` rust
+use warp::Filter;
+use crate::db::{DB, with_db};
+use crate::handler;
+
+pub fn load_router(_db: DB) -> impl Filter<Extract=impl warp::Reply, Error=
+warp::Rejection> + Clone {
+    let api_base = warp::path("api");
+    let api = api_base.and(warp::get()).and(warp::path("ping")).
+        and_then(handler::ping_handler);
+
+    //create
+    let api_new = api_base.and(warp::post()).
+        and(warp::path("new")).
+        and(warp::body::json()).
+        and(with_db(_db.clone())).
+        and_then(handler::actor_create_handler);
+
+    //read
+    let api_read = api_base.and(warp::get()).
+        and(warp::body::json()).
+        and(with_db(_db.clone())).
+        and_then(handler::actor_list_handler);
+
+    let api_update = api_base.and(warp::patch()).
+        and(warp::path::param()).
+        and(warp::body::json()).
+        and(with_db(_db.clone())).
+        and_then(handler::actor_update_handler);
+
+
+    let api_delete = api_base.and(warp::delete()).
+        and(warp::path::param()).
+        and(with_db(_db.clone())).
+        and_then(handler::actor_delete_handler);
+
+    api.or(api_new).or(api_read).or(api_update).or(api_delete)
+}
+```
+
 
 ## more info
 
--[pretty env logger](https://github.com/seanmonstar/pretty-env-logger)
+[pretty env logger](https://github.com/seanmonstar/pretty-env-logger)
+
+[nanoid](https://crates.io/crates/nanoid)
+
+[warp](https://github.com/seanmonstar/warp)
+
+[warp-example](https://github.com/seanmonstar/warp/tree/master/examples)
