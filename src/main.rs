@@ -12,9 +12,7 @@ mod db;
 async fn main() {
     init_log();
     let _db = db::init_db();
-    let api_base = warp::path("api");
-    let api = api_base.and(warp::get()).and(warp::path("ping")).
-        and_then(handler::ping_handler);
+    let api = router::load_router(_db);
 
     let api = api.with(add_cors());
     let routes = api.with(warp::log("api"));
@@ -24,7 +22,7 @@ async fn main() {
 
 fn init_log() {
     if std::env::var_os("RUST_LOG").is_none() {
-        std::env::set_var("RUST_LOG", "debug");
+        std::env::set_var("RUST_LOG", "api=debug");
     }
     pretty_env_logger::init();
 }
@@ -36,5 +34,4 @@ fn add_cors() -> Builder {
         .allow_headers(vec!["content-type"])
         .allow_credentials(true);
     cors
-
 }

@@ -1,14 +1,14 @@
 use serde::{Serialize,Deserialize};
-
+use chrono::prelude::*;
 
 #[derive(Debug, Deserialize , Serialize, Clone)]
 pub struct Actor {
-    id: i32,
-    name: String,
-    description: String,
-    score: i32,
-    created_at: String,
-    updated_at: String,
+    pub id: Option<String>,
+    pub name: String,
+    pub description: String,
+    pub score: i32,
+    pub created_at: Option<DateTime<Utc>>,
+    pub updated_at: Option<DateTime<Utc>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, Clone)]
@@ -25,6 +25,11 @@ pub struct UpdateActorReq {
     pub score: Option<i32>,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct QueryOptions {
+    pub page: Option<usize>,
+    pub limit: Option<usize>,
+}
 
 
 //response

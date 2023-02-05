@@ -7,6 +7,7 @@ install:
 	cargo add tokio --features full
 	cargo add pretty_env_logger
 	cargo add uuid --features v4
+	cargo add chrono --features serde
 	# HotReload
 	cargo install cargo-watch
 
