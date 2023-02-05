@@ -9,3 +9,6 @@ install:
 	cargo add uuid --features v4
 	# HotReload
 	cargo install cargo-watch
+
+deploy:
+	cargo run ./target/debug/warp-knockout-crud 2>&1 | tee test.log

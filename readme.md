@@ -9,7 +9,17 @@ Rate The KnockOut Actors With  <b>Warp</b><sup><em>(crud)</em></sup><br>
 
 ## 介绍
 
-不要紧张，这只是一个简单的CRUD，但是它可以帮助你理解如何使用Warp构建后端restful风格的API。
+不要紧张，这只是一个简单的CRUD，但是它可以帮助你理解如何使用rust语言和Warp路由来构建restful风格的后端API。
+
+## 关于rust写后端
+
+
+凌晨，某集团军钢刀连三排五班接到了一项紧急任务：把一份神秘的物资送往10公里外的前线哨所。时间紧迫，任务重要，整装待发的五人骑上装甲车，护送物资出发。
+
+然而，敌人早已经知道了他们的计划，在路上埋伏了大批武装力量。钢刀连面临着极大的威胁，但他们并未退缩。在一番激烈的战斗中，他们成功护送了物资到达哨所。
+
+暮色将至，哨所长官打开了包裹，却发现里面竟然是一份早餐！看着这份绝密“物资”，班长的两眼发红了。
+
 
 ## Feature
 
@@ -32,3 +42,76 @@ make install
 make dev
 ```
 
+
+## feature
+
+### 返回体结构,整整齐齐
+
+``` rust
+#[derive(Serialize)]
+pub struct GenericResponse {
+    pub status: String,
+    pub message: String,
+}
+
+#[derive(Serialize, Debug)]
+pub struct ActorData {
+    pub actor: Actor,
+}
+
+#[derive(Serialize, Debug)]
+pub struct SingleActorResponse {
+    pub status: String,
+    pub data: ActorData,
+}
+
+#[derive(Serialize, Debug)]
+pub struct ActorListResponse {
+    pub status: String,
+    pub results: usize,
+    pub actors: Vec<Actor>,
+}
+```
+
+
+### 日志管理
+
+- 日志美化
+- 输出文件保存
+
+``` rust
+#[tokio::main]
+async fn main() {
+    init_log();
+    ... 
+    let routes = api.with(warp::log("app"));
+    ...
+}
+
+fn init_log() {
+    if std::env::var_os("RUST_LOG").is_none() {
+        std::env::set_var("RUST_LOG", "app=info");
+    }
+    pretty_env_logger::init();
+}
+```
+
+``` rust
+deploy:
+	cargo run ./target/debug/warp-knockout-crud 2>&1 | tee test.log
+
+```
+
+``` log
+ INFO  warp::server > Server::run; addr=127.0.0.1:3030
+ INFO  warp::server > listening on http://127.0.0.1:3030
+ DEBUG hyper::proto::h1::io > parsed 6 headers
+ DEBUG hyper::proto::h1::conn > incoming body is empty
+ INFO  api                    > 127.0.0.1:57862 "GET /api/ping HTTP/1.1" 200 "-" "PostmanRuntime/7.30.1" 171.166µs
+ DEBUG hyper::proto::h1::io   > flushed 141 bytes
+ ```
+
+
+## more info
+
+-[pretty env logger](https://github.com/seanmonstar/pretty-env-logger)

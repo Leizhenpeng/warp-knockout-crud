@@ -1,7 +1,7 @@
 use serde::{Serialize,Deserialize};
 
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize , Serialize, Clone)]
 pub struct Actor {
     id: i32,
     name: String,
@@ -24,6 +24,7 @@ pub struct UpdateActorReq {
     pub description: Option<String>,
     pub score: Option<i32>,
 }
+
 
 
 //response
