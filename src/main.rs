@@ -35,3 +35,45 @@ fn add_cors() -> Builder {
         .allow_credentials(true);
     cors
 }
+
+
+mod test {
+    use warp::http::StatusCode;
+    use super::*;
+    use warp::test::request;
+
+    #[tokio::test]
+    async fn test_ping_checker() {
+        let api = router::load_router(db::init_db());
+        let api = api.with(add_cors());
+        let routes = api.with(warp::log("api"));
+        let resp = request()
+            .method("GET")
+            .path("/api/ping")
+            .reply(&routes)
+            .await;
+        assert_eq!(resp.status(), StatusCode::OK);
+        assert_eq!(
+            resp.body(), r#"{"status":"200","message":"pong"}"#,
+        )
+    }
+
+    #[tokio::test]
+    async fn test_create_checker() {
+        let api = router::load_router(db::init_db());
+        let api = api.with(add_cors());
+        let routes = api.with(warp::log("api"));
+        let resp = request()
+            .method("POST")
+            .path("/api/new")
+            .json(&model::CreateActorReq {
+                name: "高启强".to_string(),
+                description: Some("高启强".to_string()),
+                score: 10,
+            })
+            .reply(&routes)
+            .await;
+
+        assert_eq!(resp.status(), StatusCode::CREATED);
+    }
+}
